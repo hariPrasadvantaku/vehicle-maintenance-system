@@ -1,5 +1,7 @@
 package com.hari.maintenance.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hari.maintenance.model.User;
@@ -9,7 +11,8 @@ import com.hari.maintenance.repo.UserRepo;
 public class UserService {
 
     private UserRepo userRepo;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public UserService(UserRepo userRepo) {
         this.userRepo = userRepo;
     }
@@ -28,7 +31,7 @@ public class UserService {
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         return userRepo.save(user);
     }
 
