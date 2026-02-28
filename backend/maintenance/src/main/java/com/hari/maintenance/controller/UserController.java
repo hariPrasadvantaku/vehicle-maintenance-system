@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hari.maintenance.dto.PasswordRequest;
+import com.hari.maintenance.dto.UserDTO;
+import com.hari.maintenance.dto.UserMapper;
 import com.hari.maintenance.model.User;
 import com.hari.maintenance.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,19 +31,22 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.registerUser(user);
+    public UserDTO register(@Valid @RequestBody User user) {
+        User saved = userService.registerUser(user);
+        return UserMapper.toDTO(saved);
     }
 
     @GetMapping("/me")
-    public User getDetails(Authentication auth) {
-        return userService.findByEmail(auth.getName());
+    public UserDTO getDetails(Authentication auth) {
+        User user =  userService.findByEmail(auth.getName());
+        return UserMapper.toDTO(user);
     }
 
     @PatchMapping("/password")
-    public User updatePassword(Authentication auth,
-                               @RequestParam String password) {
-        return userService.updatePasswordByEmail(auth.getName(), password);
+    public String updatePassword(Authentication auth,
+                               @RequestBody PasswordRequest request) {
+        userService.updatePasswordByEmail(auth.getName(), request.getPassword());
+        return "Password updated Successfully";
     }
 
     @DeleteMapping("/delete")
